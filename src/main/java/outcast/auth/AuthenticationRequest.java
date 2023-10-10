@@ -1,19 +1,14 @@
 package outcast.auth;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 /**
  * @author outcast c-cute hột me 😳
  */
-
-@Data
-@Builder
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuthenticationRequest {
-    private String userName;
+    private String username;
     private String password;
 }

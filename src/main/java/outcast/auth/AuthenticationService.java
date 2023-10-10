@@ -9,7 +9,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import outcast.utils.JwtTokenUtil;
+import outcast.service.JwtTokenService;
 import outcast.token.Token;
 import outcast.repositories.TokenRepository;
 import outcast.token.TokenType;
@@ -29,7 +29,7 @@ public class AuthenticationService {
     private final UserRepository repository;
     private final TokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtTokenUtil jwtTokenUtil;
+    private final JwtTokenService jwtTokenService;
 
     private final AuthenticationManager authenticationManager;
 
@@ -44,8 +44,8 @@ public class AuthenticationService {
         repository.save(user);
 
         var savedUser = repository.save(user);
-        var jwtToken = jwtTokenUtil.generateToken(user);
-        var refreshToken = jwtTokenUtil.generateRefreshToken(user);
+        var jwtToken = jwtTokenService.generateToken(user);
+        var refreshToken = jwtTokenService.generateRefreshToken(user);
         saveUserToken(savedUser, jwtToken);
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
@@ -56,14 +56,14 @@ public class AuthenticationService {
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.getUserName(),
+                        request.getUsername(),
                         request.getPassword()
                 )
         );
-        var user = repository.findByUsername(request.getUserName())
+        var user = repository.findByUsername(request.getUsername())
                 .orElseThrow();
-        var jwtToken = jwtTokenUtil.generateToken(user);
-        var refreshToken = jwtTokenUtil.generateRefreshToken(user);
+        var jwtToken = jwtTokenService.generateToken(user);
+        var refreshToken = jwtTokenService.generateRefreshToken(user);
         revokeAllUserTokens(user);
         saveUserToken(user, jwtToken);
         return AuthenticationResponse.builder()
@@ -83,12 +83,12 @@ public class AuthenticationService {
             return;
         }
         refreshToken = authHeader.substring(7);
-        userName = jwtTokenUtil.extractUsername(refreshToken);
+        userName = jwtTokenService.extractUsername(refreshToken);
         if (userName != null) {
             var user = this.repository.findByUsername(userName)
                     .orElseThrow();
-            if (jwtTokenUtil.isTokenValid(refreshToken, user)) {
-                var accessToken = jwtTokenUtil.generateToken(user);
+            if (jwtTokenService.isTokenValid(refreshToken, user)) {
+                var accessToken = jwtTokenService.generateToken(user);
                 revokeAllUserTokens(user);
                 saveUserToken(user, accessToken);
                 var authResponse = AuthenticationResponse.builder()
