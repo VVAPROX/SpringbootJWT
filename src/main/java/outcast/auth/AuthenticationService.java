@@ -9,11 +9,11 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import outcast.repositories.TokenRepository;
+import outcast.repositories.UserRepository;
 import outcast.service.JwtTokenService;
 import outcast.token.Token;
-import outcast.repositories.TokenRepository;
 import outcast.token.TokenType;
-import outcast.repositories.UserRepository;
 import outcast.user.Role;
 import outcast.user.User;
 
@@ -79,7 +79,7 @@ public class AuthenticationService {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String refreshToken;
         final String userName;
-        if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return;
         }
         refreshToken = authHeader.substring(7);

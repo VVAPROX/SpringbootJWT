@@ -1,6 +1,8 @@
 package outcast.auth;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 /**
  * @author outcast c-cute hột me 😳

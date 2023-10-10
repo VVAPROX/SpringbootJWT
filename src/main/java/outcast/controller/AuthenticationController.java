@@ -34,20 +34,10 @@ public class AuthenticationController {
         try {
             var user = repository.findByUsername(request.getUserName());
             if (!user.isEmpty()) {
-                return ResponseEntity.ok(
-                        AuthenticationResponse.builder()
-                                .status("error")
-                                .message("Tài khoản đã tồn tại")
-                                .build()
-                );
+                return ResponseEntity.ok(generateResponse("error", "Tài khoản đã tồn tại!"));
             }
             if (containsSpecialCharacters(request.getUserName())) {
-                return ResponseEntity.ok(
-                        AuthenticationResponse.builder()
-                                .status("error")
-                                .message("Tên tài khoản không được chứa các kí tự đặc biệt")
-                                .build()
-                );
+                return ResponseEntity.ok(generateResponse("error", "Tên tài khoản không được chứa các kí tự đặc biệt!"));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -55,9 +45,15 @@ public class AuthenticationController {
         return ResponseEntity.ok(service.register(request));
     }
 
+    private AuthenticationResponse generateResponse(String status, String message) {
+        return AuthenticationResponse.builder()
+                .status(status)
+                .message(message)
+                .build();
+    }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> authenticate (@RequestBody AuthenticationRequest request) {
+    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
         return ResponseEntity.ok(service.authenticate(request));
     }
 

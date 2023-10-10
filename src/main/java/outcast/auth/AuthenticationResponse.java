@@ -6,8 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.sql.Struct;
-
 /**
  * @author outcast c-cute hột me 😳
  */

@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+
 /**
  * @author outcast c-cute hột me 😳
  */
@@ -28,6 +29,7 @@ public class JwtTokenService {
     private Long expiration;
     @Value("${jwt.refresh.token.expiration}")
     private long refreshExpiration;
+
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         return createToken(claims, userDetails.getUsername());
