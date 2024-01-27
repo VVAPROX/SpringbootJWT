@@ -1,21 +1,17 @@
 package outcast.token;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import outcast.user.User;
 
 
 /**
  * @author outcast c-cute hột me 😳
  */
-@Data
 @Builder
+@Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
 public class Token {
 
     @Id
@@ -27,9 +23,11 @@ public class Token {
 
     @Enumerated(EnumType.STRING)
     public TokenType tokenType = TokenType.BEARER;
-
+    @Setter
+    @Getter
     public boolean revoked;
-
+    @Setter
+    @Getter
     public boolean expired;
 
     @ManyToOne(fetch = FetchType.LAZY)

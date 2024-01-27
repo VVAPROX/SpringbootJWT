@@ -32,12 +32,12 @@ public class AuthenticationController {
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request) {
         try {
-            var user = repository.findByUsername(request.getUserName());
-            if (!user.isEmpty()) {
-                return ResponseEntity.ok(generateResponse("error", "Tài khoản đã tồn tại!"));
+            var user = repository.findByUsername(request.getUsername());
+            if (user.isPresent()) {
+                return ResponseEntity.ok(generateResponse("error", "This username already exists!"));
             }
-            if (containsSpecialCharacters(request.getUserName())) {
-                return ResponseEntity.ok(generateResponse("error", "Tên tài khoản không được chứa các kí tự đặc biệt!"));
+            if (containsSpecialCharacters(request.getUsername())) {
+                return ResponseEntity.ok(generateResponse("error", "Username cannot contain special characters!"));
             }
         } catch (Exception e) {
             e.printStackTrace();

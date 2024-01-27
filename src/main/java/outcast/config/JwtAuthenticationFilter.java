@@ -17,6 +17,7 @@ import outcast.repositories.TokenRepository;
 import outcast.service.JwtTokenService;
 
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * @author outcast c-cute hột me 😳
@@ -29,6 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenService jwtService;
     private final UserDetailsService userDetailsService;
     private final TokenRepository tokenRepository;
+    private static final String BEARER_PREFIX = "Bearer ";
 
     @Override
     protected void doFilterInternal(
@@ -36,20 +38,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        if (request.getServletPath().contains("/api/auth")) {
+        String servletPath = request.getServletPath();
+        if (servletPath.contains("/api/auth")) {
             filterChain.doFilter(request, response);
             return;
         }
-        final String authHeader = request.getHeader("Authorization");
-        final String jwt;
-        final String userEmail;
-        final String bearer = "Bearer ";
-        if (authHeader == null || !authHeader.startsWith(bearer)) {
+
+        String authHeader = request.getHeader("Authorization");
+        Objects.requireNonNull(authHeader, "Authorization header must not be null");
+
+        if (!authHeader.startsWith(BEARER_PREFIX)) {
             filterChain.doFilter(request, response);
             return;
         }
-        jwt = authHeader.substring(bearer.length());
-        userEmail = jwtService.extractUsername(jwt);
+
+        String jwt = authHeader.substring(BEARER_PREFIX.length());
+        String userEmail = jwtService.extractUsername(jwt);
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
             var isTokenValid = tokenRepository.findByToken(jwt)
@@ -61,9 +65,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         null,
                         userDetails.getAuthorities()
                 );
-                authToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request)
-                );
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }

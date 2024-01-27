@@ -1,16 +1,12 @@
 package outcast.auth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 /**
  * @author outcast c-cute hột me 😳
  */
 
-@Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,6 +16,8 @@ public class AuthenticationResponse {
     private String accessToken;
     @JsonProperty("refresh_token")
     private String refreshToken;
+    @JsonProperty
     private String status;
+    @JsonProperty
     private String message;
 }

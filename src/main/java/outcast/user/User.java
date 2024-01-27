@@ -14,10 +14,10 @@ import java.util.List;
 
 
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "user")
+@AllArgsConstructor
+@NoArgsConstructor
 public class User implements UserDetails {
 
     @Id
@@ -30,7 +30,6 @@ public class User implements UserDetails {
     private String password;
     @Enumerated(EnumType.STRING)
     private Role role;
-
     @OneToMany(mappedBy = "user")
     private List<Token> tokens;
 

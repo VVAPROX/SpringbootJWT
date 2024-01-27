@@ -7,8 +7,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import outcast.consts.Status;
 import outcast.repositories.TokenRepository;
 import outcast.repositories.UserRepository;
 import outcast.service.JwtTokenService;
@@ -35,9 +38,9 @@ public class AuthenticationService {
 
     public AuthenticationResponse register(RegisterRequest request) {
         var user = User.builder()
-                .firstname(request.getFirstName())
-                .lastname(request.getLastName())
-                .username(request.getUserName())
+                .firstname(request.getFirstname())
+                .lastname(request.getLastname())
+                .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
                 .build();
@@ -54,19 +57,27 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
-                        request.getPassword()
-                )
-        );
-        var user = repository.findByUsername(request.getUsername())
-                .orElseThrow();
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getUsername(),
+                            request.getPassword()
+                    )
+            );
+        } catch (AuthenticationException e) {
+            return AuthenticationResponse.builder()
+                    .status("error")
+                    .message("Invalid username or password!")
+                    .build();
+        }
+
+        var user = repository.findByUsername(request.getUsername()).orElseThrow();
         var jwtToken = jwtTokenService.generateToken(user);
         var refreshToken = jwtTokenService.generateRefreshToken(user);
         revokeAllUserTokens(user);
         saveUserToken(user, jwtToken);
         return AuthenticationResponse.builder()
+                .status(Status.SUCCESS)
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
                 .build();
