@@ -38,22 +38,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        String servletPath = request.getServletPath();
-        if (servletPath.contains("/api/auth")) {
+        if (request.getServletPath().contains("/api/auth")) {
             filterChain.doFilter(request, response);
             return;
         }
-
-        String authHeader = request.getHeader("Authorization");
-        Objects.requireNonNull(authHeader, "Authorization header must not be null");
-
-        if (!authHeader.startsWith(BEARER_PREFIX)) {
+        final String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
             filterChain.doFilter(request, response);
             return;
         }
-
-        String jwt = authHeader.substring(BEARER_PREFIX.length());
-        String userEmail = jwtService.extractUsername(jwt);
+        final String jwt = authHeader.substring(BEARER_PREFIX.length());
+        final String userEmail = jwtService.extractUsername(jwt);
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
             var isTokenValid = tokenRepository.findByToken(jwt)
