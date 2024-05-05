@@ -51,6 +51,8 @@ public class AuthenticationService {
         var refreshToken = jwtTokenService.generateRefreshToken(user);
         saveUserToken(savedUser, jwtToken);
         return AuthenticationResponse.builder()
+                .status(Status.SUCCESS)
+                .message("Account registered successfully!")
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
                 .build();
